@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CreaQR · Links, imágenes y videos</title>
+<meta name="theme-color" content="#0d1117">
+<style>
+:root{--bg: #0d1117;--panel: #161b22;--border:#30363d;--tx: #e6edf3;--sub: #8b949e;--ac: #8b5cf6;--ok:#2f9e6e;--err:#d64545;--warn:#d29922}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--tx);padding:16px;max-width:680px;margin:0 auto}
+header{display:flex;align-items:center;gap:10px;padding:6px 0 18px}
+h1{font-size:20px}.sub{font-size:12px;color:var(--sub);flex:1}
+.ico{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--ac),#6d28d9);display:flex;align-items:center;justify-content:center;font-size:18px}
+.barra{display:flex;gap:6px;margin-bottom:14px}
+.tab{flex:1;padding:11px 8px;border-radius:10px;border:1px solid var(--border);background:var(--panel);color:var(--sub);font:inherit;font-size:13px;cursor:pointer;text-align:center}
+.tab.on{color:#fff;background:linear-gradient(135deg,var(--ac),#6d28d9);border-color:transparent}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px}
+.card h2{font-size:15px;margin-bottom:4px}
+.card .d{font-size:12.5px;color:var(--sub);margin-bottom:12px;line-height:1.5}
+label{display:block;font-size:12.5px;color:var(--sub);margin:10px 0 4px}
+input[type=text],input[type=number],textarea,select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:#ffffff;color:#111;font:inherit;font-size:15px}
+input[type=file]{width:100%;padding:12px;border:1px dashed var(--border);border-radius:10px;background:#ffffff;color:#111;font:inherit;font-size:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--ac),#6d28d9);color:#fff;font:inherit;font-size:15px;cursor:pointer;width:100%}
+.btn:disabled{opacity:.5}
+.btn.sec{background:transparent;border:1px solid var(--border);color:var(--tx)}
+.row{display:flex;gap:10px}
+.row>div{flex:1}
+#qrbox{display:flex;justify-content:center;padding:18px;background:#fff;border-radius:14px;margin-top:14px;min-height:80px}
+#qrbox img,#qrbox canvas{display:block}
+.info{font-size:13px;background:#0d1117;border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:12px;line-height:1.7}
+.info b.ok{color:var(--ok)}.info b.er{color:var(--err)}.info b.wa{color:var(--warn)}
+.bar{height:10px;border-radius:99px;background:#0d1117;border:1px solid var(--border);overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ac),#6d28d9)}
+.hidden{display:none}
+.cap{font-size:12px;color:var(--sub)}
+</style>
+<style id="lf-tema">html,body{background:#0d1117 !important;color:#e6edf3 !important;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif !important;font-size:16px !important}</style></head>
+<body>
+<header>
+  <div class="ico">🔳</div>
+  <div><h1>CreaQR</h1><span class="sub">Links, imágenes y videos en códigos QR</span></div>
+</header>
+
+<nav class="barra">
+  <button class="tab on" data-t="link">🔗 Link / texto</button>
+  <button class="tab" data-t="img">🖼️ Imagen</button>
+  <button class="tab" data-t="vid">🎬 Video</button>
+</nav>
+
+<!-- LINK -->
+<div class="card" id="c-link">
+  <h2>Link o texto</h2>
+  <div class="d">Escribí o pegá el contenido: una URL, un WhatsApp, wifi, lo que quieras.</div>
+  <input type="text" id="inLink" placeholder="https://…">
+  <label>Tamaño del QR</label>
+  <select id="inSize"><option value="200">200 px</option><option value="280" selected>280 px</option><option value="360">360 px</option></select>
+  <div style="margin-top:12px"><button class="btn" id="bLink">Generar QR</button></div>
+</div>
+
+<!-- IMAGEN -->
+<div class="card hidden" id="c-img">
+  <h2>Imagen dentro del QR</h2>
+  <div class="d">La imagen se incrusta <b>dentro</b> del QR como base64 (funciona sin internet). Un QR carga ~2.900 caracteres, así que la imagen se comprime fuerte (miniatura). Es experimental: algunos lectores no la muestran automáticamente. Para uso general recomendamos subir la imagen a Drive y generar el QR del link (pestaña Link).</div>
+  <input type="file" id="inImg" accept="image/*">
+  <div id="imgPrev" class="hidden">
+    <label>Vista previa (miniatura que irá en el QR)</label>
+    <div style="text-align:center"><img id="pv" style="max-width:120px;border-radius:8px"></div>
+    <div class="cap" id="capTxt"></div>
+    <div class="bar"><i id="capBar"></i></div>
+  </div>
+  <div style="margin-top:12px"><button class="btn" id="bImg" disabled>Generar QR con imagen</button></div>
+</div>
+
+<!-- VIDEO -->
+<div class="card hidden" id="c-vid">
+  <h2>Video en el QR</h2>
+  <div class="d">El video no cabe dentro de un QR: el código guarda el <b>enlace</b>. Pegá el link de YouTube, Drive, Dropbox… o subí el video a un hosting temporal (sale de tu teléfono, dura ~30 días gratis).</div>
+  <label>Opción A — pegá el link del video</label>
+  <input type="text" id="inVidUrl" placeholder="https://youtube.com/watch?v=…">
+  <label>Opción B — subir mi video (genera el link automáticamente)</label>
+  <input type="file" id="inVid" accept="video/*">
+  <div style="margin-top:10px"><button class="btn sec" id="bVidUp">☁️ Subir video y obtener link</button></div>
+  <div class="info hidden" id="vidMsg"></div>
+  <div style="margin-top:12px"><button class="btn" id="bVid">Generar QR del video</button></div>
+</div>
+
+<!-- RESULTADO -->
+<div class="card hidden" id="c-res">
+  <h2>Tu QR</h2>
+  <div id="qrbox"></div>
+  <div class="info" id="resInfo"></div>
+  <div class="row" style="margin-top:12px">
+    <button class="btn sec" id="bDown">⬇️ Descargar PNG</button>
+    <button class="btn sec" id="bShare">📋 Copiar imagen</button>
+  </div>
+  <div style="margin-top:8px"><button class="btn sec" id="bOtro">🔁 Crear otro</button></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const MAX_QR = 2900; // margen seguro de caracteres para el QR
+
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  ['link','img','vid'].forEach(t => $('c-'+t).classList.toggle('hidden', b.dataset.t !== t));
+});
+
+let qrCanvas = null, ultimoTipo = '';
+
+function generar(texto, tipo){
+  if (!texto || texto.length > MAX_QR){
+    alert('El contenido supera la capacidad del QR (' + MAX_QR + ' caracteres). Es imposible generarlo.');
+    return;
+  }
+  $('qrbox').innerHTML = '';
+  try {
+    new QRCode($('qrbox'), { text: texto, width: 280, height: 280, correctLevel: QRCode.CorrectLevel.M });
+    setTimeout(() => {
+      qrCanvas = $('qrbox').querySelector('canvas');
+      $('c-res').classList.remove('hidden');
+      $('resInfo').innerHTML = 'Tipo: <b>' + tipo + '</b> · Contenido: ' + texto.length + ' caracteres' +
+        (texto.length > 2000 ? '<br><b class="wa">QR muy denso: algunos celulares viejos tardan en leerlo. Acercá bien la cámara.</b>' : '');
+      ultimoTipo = tipo;
+      $('c-res').scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  } catch (e) {
+    alert('No se pudo generar: el contenido es demasiado largo para un QR.');
+  }
+}
+
+$('bLink').onclick = () => {
+  const v = $('inLink').value.trim();
+  if (!v) return alert('Escribí un link o texto.');
+  generar(v, 'Link / texto');
+};
+
+/* ---- imagen ---- */
+let imgDataUrl = null, imgChars = 0;
+$('inImg').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const img = new Image();
+  img.onload = () => {
+    // comprimir hasta que el base64 entre en el QR
+    let size = 64;
+    let dataUrl = '';
+    while (size >= 16) {
+      const c = document.createElement('canvas');
+      const k = Math.min(size / img.width, size / img.height, 1);
+      c.width = Math.max(1, Math.round(img.width * k));
+      c.height = Math.max(1, Math.round(img.height * k));
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      dataUrl = c.toDataURL('image/jpeg', 0.35);
+      if (dataUrl.length + 20 <= MAX_QR) break;
+      size -= 8;
+    }
+    imgDataUrl = dataUrl;
+    imgChars = dataUrl.length + 20;
+    $('imgPrev').classList.remove('hidden');
+    $('pv').src = dataUrl;
+    const pct = Math.min(100, Math.round(imgChars / MAX_QR * 100));
+    $('capTxt').innerHTML = 'Capacidad usada: <b>' + imgChars.toLocaleString('es-AR') + ' / ' + MAX_QR + '</b> caracteres (' + pct + '%)' +
+      (imgChars > MAX_QR ? ' — <b class="er">no entra ni comprimiendo</b>' : ' — miniatura de ' + size + ' px');
+    $('capBar').style.width = pct + '%';
+    $('capBar').style.background = imgChars > MAX_QR ? 'var(--err)' : '';
+    $('bImg').disabled = imgChars > MAX_QR;
+    if (imgChars > MAX_QR) alert('La imagen es muy grande incluso comprimida. Usá la pestaña Link con la imagen subida a Drive.');
+  };
+  img.src = URL.createObjectURL(f);
+};
+$('bImg').onclick = () => {
+  if (!imgDataUrl) return;
+  generar('IMG:' + imgDataUrl, 'Imagen incrustada');
+};
+
+/* ---- video ---- */
+$('bVidUp').onclick = async () => {
+  const f = $('inVid').files[0];
+  if (!f) return alert('Elegí un video primero (Opción B).');
+  if (f.size > 512 * 1048576) return alert('El video supera 512 MB, no se puede subir a hosting gratuito.');
+  const msg = $('vidMsg');
+  msg.classList.remove('hidden');
+  msg.innerHTML = '☁️ Subiendo <b>' + (f.size / 1048576).toFixed(1) + ' MB</b>… no cierres la app.';
+  $('bVidUp').disabled = true;
+  try {
+    const r = await fetch('https://0x0.st', { method: 'POST', body: (() => { const d = new FormData(); d.append('file', f); return d; })() });
+    const url = (await r.text()).trim();
+    if (!r.ok || !url.startsWith('http')) throw new Error('respuesta del servidor: ' + url.slice(0, 80));
+    $('inVidUrl').value = url;
+    msg.innerHTML = '✓ Subido. Link generado (válido ~30 días):<br><b class="ok">' + url + '</b><br>Ya podés generar el QR.';
+  } catch (e) {
+    msg.innerHTML = '<b class="er">✗ Falló la subida:</b> ' + e.message + '<br>Subí el video a YouTube/Drive y pegá el link en la Opción A.';
+  }
+  $('bVidUp').disabled = false;
+};
+$('bVid').onclick = () => {
+  const v = $('inVidUrl').value.trim();
+  if (!v) return alert('Pegá el link del video (Opción A) o subilo (Opción B).');
+  generar(v, 'Video (link)');
+};
+
+/* ---- resultado ---- */
+$('bDown').onclick = () => {
+  if (!qrCanvas) return;
+  const a = document.createElement('a');
+  a.href = qrCanvas.toDataURL('image/png');
+  a.download = 'qr_' + ultimoTipo.replace(/[^a-z]/gi,'').toLowerCase() + '.png';
+  document.body.appendChild(a); a.click(); a.remove();
+};
+$('bShare').onclick = async () => {
+  if (!qrCanvas) return;
+  try {
+    const blob = await new Promise(r => qrCanvas.toBlob(r));
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+    alert('Imagen del QR copiada ✓');
+  } catch (e) {
+    alert('Este navegador no permite copiar imágenes. Usá "Descargar PNG".');
+  }
+};
+$('bOtro').onclick = () => { $('c-res').classList.add('hidden'); $('qrbox').innerHTML = ''; window.scrollTo(0,0); };
+</script>
+</body>
+</html>
